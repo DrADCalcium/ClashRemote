@@ -1,3 +1,5 @@
+> Windows 移植版：请阅读 [Windows 使用和构建说明](windows/README.md)，源码位于 windows/。原始 macOS 版本说明保留如下。
+
 # Clash Remote
 
 **macOS 原生客户端，用来遥控家里的 OpenClash / 猫猫。**
