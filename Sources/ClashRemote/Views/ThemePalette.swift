@@ -1,4 +1,9 @@
+#if os(macOS)
 import SwiftUI
+#else
+import Foundation
+import SwiftOpenUI
+#endif
 
 /// A complete set of semantic colors for a selected application theme.
 struct ThemeColors {
@@ -65,8 +70,12 @@ struct ThemeColors {
 }
 
 @propertyWrapper
-struct ThemePalette: DynamicProperty {
+struct ThemePalette {
     @Environment(\.appTheme) private var theme
 
     var wrappedValue: ThemeColors { ThemeColors(theme: theme) }
 }
+
+#if os(macOS)
+extension ThemePalette: DynamicProperty {}
+#endif

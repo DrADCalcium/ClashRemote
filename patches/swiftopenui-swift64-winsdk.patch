@@ -1,0 +1,42 @@
+diff --git a/Sources/Backend/Win32/CWin32/include/d2d1_shim.h b/Sources/Backend/Win32/CWin32/include/d2d1_shim.h
+index 3e4335f..542f8e4 100644
+--- a/Sources/Backend/Win32/CWin32/include/d2d1_shim.h
++++ b/Sources/Backend/Win32/CWin32/include/d2d1_shim.h
+@@ -1,4 +1,7 @@
+ #pragma once
++#if defined(__clang__) && __has_feature(modules)
++#pragma clang module import WinSDK
++#endif
+ 
+ // Direct2D C shim layer for Swift.
+ //
+@@ -19,6 +22,7 @@
+ #define WIN32_LEAN_AND_MEAN
+ 
+ #include <windows.h>
++#include <windef.h>
+ 
+ // Opaque handles for D2D/DWrite COM objects.
+ // Using struct pointers so Swift imports them as distinct OpaquePointer types.
+diff --git a/Sources/Backend/Win32/CWin32/include/shim.h b/Sources/Backend/Win32/CWin32/include/shim.h
+index 2ee5dcc..eb6ef79 100644
+--- a/Sources/Backend/Win32/CWin32/include/shim.h
++++ b/Sources/Backend/Win32/CWin32/include/shim.h
+@@ -13,6 +13,8 @@
+ #define NOMINMAX
+ 
+ #include <windows.h>
++#include <windef.h>
++#include <winuser.h>
+ #include <commctrl.h>
+ #include <windowsx.h>
+ 
+@@ -167,7 +169,7 @@ static inline BOOL win32_EnableVisualStyles(void) {
+ // --- DPI awareness ---
+ 
+ static inline BOOL win32_SetProcessDpiAwarenessContextPerMonitorV2(void) {
+-    return SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
++    return SetProcessDpiAwarenessContext((DPI_AWARENESS_CONTEXT)-4);
+ }
+ 
+ static inline UINT win32_GetDpiForWindow(HWND hwnd) {

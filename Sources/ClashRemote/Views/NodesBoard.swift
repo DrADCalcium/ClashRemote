@@ -1,4 +1,9 @@
+#if os(macOS)
 import SwiftUI
+#else
+import Foundation
+import SwiftOpenUI
+#endif
 
 private struct DisplayGroup: Identifiable, Hashable {
     var id: String

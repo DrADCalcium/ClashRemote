@@ -1,4 +1,9 @@
+#if os(macOS)
 import SwiftUI
+#else
+import Foundation
+import SwiftOpenUI
+#endif
 
 enum ThemeLayout: Equatable, Sendable {
     case dashboard

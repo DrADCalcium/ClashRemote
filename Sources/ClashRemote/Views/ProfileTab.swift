@@ -1,4 +1,9 @@
+#if os(macOS)
 import SwiftUI
+#else
+import Foundation
+import SwiftOpenUI
+#endif
 
 private enum ProfileCategory: String, CaseIterable, Identifiable {
     case filters = "节点筛选"

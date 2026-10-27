@@ -1,4 +1,9 @@
+#if os(macOS)
 import SwiftUI
+#else
+import Foundation
+import SwiftOpenUI
+#endif
 
 enum WorkspaceSection: String, CaseIterable, Identifiable {
     case overview = "总览"

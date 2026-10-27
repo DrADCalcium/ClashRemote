@@ -1,4 +1,9 @@
+#if os(macOS)
 import SwiftUI
+#else
+import Foundation
+import SwiftOpenUI
+#endif
 
 struct AppSettingsView: View {
     @Environment(AppPreferences.self) private var preferences

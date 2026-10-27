@@ -19,3 +19,11 @@ dist/
 .vscode/
 *.swp
 *~
+
+# Windows Swift experiments
+.build-core/
+*-run.log
+rebuild.log
+windows-build.log
+windows-core-tests.log
+windows-errors.txt

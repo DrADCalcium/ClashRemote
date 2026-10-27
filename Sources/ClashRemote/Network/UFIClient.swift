@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(CommonCrypto)
 import CommonCrypto
+#endif
 
 /// UFI-TOOLS (port 2333) signed HTTP + root shell.
 @MainActor

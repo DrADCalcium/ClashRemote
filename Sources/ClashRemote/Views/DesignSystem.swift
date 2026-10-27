@@ -1,5 +1,12 @@
+#if canImport(AppKit)
 import AppKit
+#endif
+#if os(macOS)
 import SwiftUI
+#else
+import Foundation
+import SwiftOpenUI
+#endif
 
 struct PanelSurface: ViewModifier {
     @ThemePalette private var palette

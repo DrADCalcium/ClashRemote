@@ -1,6 +1,15 @@
+#if canImport(AppKit)
 import AppKit
+#endif
+#if canImport(Charts)
 import Charts
+#endif
+#if os(macOS)
 import SwiftUI
+#else
+import Foundation
+import SwiftOpenUI
+#endif
 
 /// The overview uses three arrangements shared by the five appearance themes.
 struct ThemedOverview: View {
@@ -149,6 +158,7 @@ struct ThemedOverview: View {
     }
 
     private var trendChart: some View {
+        #if canImport(Charts)
         Chart {
             ForEach(samples) { sample in
                 AreaMark(x: .value("时间", sample.date), y: .value("下载速率", sample.download / 1_000_000))
@@ -187,6 +197,27 @@ struct ThemedOverview: View {
             }
         }
         .accessibilityLabel("最近 \(trendMinutes) 分钟下载和上传速率趋势，数据来自路由器")
+        #else
+        Canvas { context, size in
+            let ceiling = max(samples.map { max($0.download, $0.upload) }.max() ?? 1, 1) * 1.15
+            for index in 0...4 {
+                let y = size.height * CGFloat(index) / 4
+                var grid = Path(); grid.move(to: CGPoint(x: 0, y: y)); grid.addLine(to: CGPoint(x: size.width, y: y))
+                context.stroke(grid, with: .color(palette.border), lineWidth: 0.5)
+            }
+            for isUpload in [false, true] {
+                var line = Path()
+                for (index, sample) in samples.enumerated() {
+                    let x = size.width * CGFloat(index) / CGFloat(max(samples.count - 1, 1))
+                    let value = isUpload ? sample.upload : sample.download
+                    let point = CGPoint(x: x, y: size.height * (1 - value / ceiling))
+                    if index == 0 { line.move(to: point) } else { line.addLine(to: point) }
+                }
+                context.stroke(line, with: .color(isUpload ? uploadColor : palette.blue), lineWidth: 1.8)
+            }
+        }
+        .accessibilityLabel("下载和上传速率趋势，数据来自路由器")
+        #endif
     }
 
     private var trendAxisDates: [Date] {
