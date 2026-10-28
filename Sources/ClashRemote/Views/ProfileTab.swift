@@ -1,9 +1,4 @@
-#if os(macOS)
 import SwiftUI
-#else
-import Foundation
-import SwiftOpenUI
-#endif
 
 private enum ProfileCategory: String, CaseIterable, Identifiable {
     case filters = "节点筛选"
@@ -20,8 +15,6 @@ private enum ProfileCategory: String, CaseIterable, Identifiable {
         }
     }
 }
-
-@MainActor
 
 struct ProfileTab: View {
     @ThemePalette private var palette
@@ -353,8 +346,6 @@ struct ProfileTab: View {
     }
 }
 
-@MainActor
-
 private struct FlowTokens: View {
     @ThemePalette private var palette
     let values: [String]
@@ -380,8 +371,6 @@ private struct FlowTokens: View {
         }
     }
 }
-
-@MainActor
 
 private struct LocalSubscriptionEditor: View {
     @ThemePalette private var palette

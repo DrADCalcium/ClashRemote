@@ -1,7 +1,5 @@
 import Foundation
-#if canImport(FoundationNetworking)
-import FoundationNetworking
-#endif
+import CoreFoundation
 
 enum HTTPError: LocalizedError {
     case badURL
@@ -58,13 +56,10 @@ struct HTTPResponse: Sendable {
 
 final class HTTPClient: @unchecked Sendable {
     private let timeout: TimeInterval
-    #if !os(Windows)
     private let session: URLSession
-    #endif
 
     init(timeout: TimeInterval = 8) {
         self.timeout = timeout
-        #if !os(Windows)
         let config = URLSessionConfiguration.ephemeral
         // 空代理字典 = 强制不走系统代理（FlClash/Clash），直连内网路由器
         config.connectionProxyDictionary = [:]
@@ -73,7 +68,6 @@ final class HTTPClient: @unchecked Sendable {
         config.httpShouldUsePipelining = true
         config.httpCookieAcceptPolicy = .never
         self.session = URLSession(configuration: config, delegate: NoRedirectDelegate(), delegateQueue: nil)
-        #endif
     }
 
     func request(
@@ -83,9 +77,6 @@ final class HTTPClient: @unchecked Sendable {
         body: Data? = nil,
         timeout: TimeInterval? = nil
     ) async throws -> HTTPResponse {
-        #if os(Windows)
-        return try await DirectHTTP.request(url: url, method: method, headers: headers, body: body, timeout: timeout ?? self.timeout)
-        #else
         var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: timeout ?? self.timeout)
         req.httpMethod = method
         for (key, value) in headers {
@@ -107,7 +98,6 @@ final class HTTPClient: @unchecked Sendable {
             }
         }
         return HTTPResponse(status: http.statusCode, data: data, headers: hdrs)
-        #endif
     }
 
     func jsonRPC(url: URL, payload: [String: Any], headers: [String: String] = [:]) async throws -> [String: Any] {
@@ -123,7 +113,6 @@ final class HTTPClient: @unchecked Sendable {
 }
 
 /// 不自动跟随 3xx 重定向：luciLogin 的 302 响应里带 sysauth cookie，必须原样返回不能被 follow 掉。
-#if !os(Windows)
 private final class NoRedirectDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
     func urlSession(
         _ session: URLSession,
@@ -135,8 +124,6 @@ private final class NoRedirectDelegate: NSObject, URLSessionTaskDelegate, @unche
         completionHandler(nil)
     }
 }
-
-#endif
 
 enum JSONValue {
     static func string(_ any: Any?) -> String {

@@ -2,8 +2,6 @@
 
 **macOS 原生客户端，用来遥控家里的 OpenClash / 猫猫。**
 
-> 当前 `windows-port` 分支包含 SwiftOpenUI / Win32 移植：原 Swift 页面已能在 Windows 编译运行，缺失 API 的实现、构建方式、测试结果与已知差异见 [Windows 说明](WINDOWS.md)。下面的截图是 macOS 原版界面。
-
 换订阅、切节点、切规则/全局/直连、开 TUN——不必再打开 LuCI 或插件网页。局域网里有一两台 Clash 设备时，这就是那个「专用按钮」。
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black?style=flat-square)

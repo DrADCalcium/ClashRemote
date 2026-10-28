@@ -1,14 +1,5 @@
-#if canImport(AppKit)
 import AppKit
-#endif
-#if os(macOS)
 import SwiftUI
-#else
-import Foundation
-import SwiftOpenUI
-#endif
-
-@MainActor
 
 struct PanelSurface: ViewModifier {
     @ThemePalette private var palette
@@ -25,8 +16,6 @@ extension View {
     func panelSurface(radius: CGFloat = 18) -> some View { modifier(PanelSurface(radius: radius)) }
 }
 
-@MainActor
-
 struct GlyphBadge: View {
     @ThemePalette private var palette
     let symbol: String
@@ -41,8 +30,6 @@ struct GlyphBadge: View {
             .background(color.opacity(0.10), in: RoundedRectangle(cornerRadius: size * 0.29, style: .continuous))
     }
 }
-
-@MainActor
 
 struct NetworkArtwork: View {
     @ThemePalette private var palette
@@ -88,8 +75,6 @@ struct NetworkArtwork: View {
     }
 }
 
-@MainActor
-
 struct WorkspaceBanner: View {
     @ThemePalette private var palette
     let symbol: String
@@ -113,8 +98,6 @@ struct WorkspaceBanner: View {
     }
 }
 
-@MainActor
-
 struct WorkspaceEmptyState: View {
     @ThemePalette private var palette
     let symbol: String
@@ -135,8 +118,6 @@ struct WorkspaceEmptyState: View {
         .frame(maxWidth: .infinity).padding(.vertical, 40)
     }
 }
-
-@MainActor
 
 struct ActionButtonStyle: ButtonStyle {
     @ThemePalette private var palette
@@ -166,8 +147,6 @@ struct ActionButtonStyle: ButtonStyle {
     }
 }
 
-@MainActor
-
 struct EditorField<Content: View>: View {
     @ThemePalette private var palette
     let title: String
@@ -184,8 +163,6 @@ struct EditorField<Content: View>: View {
     }
 }
 
-@MainActor
-
 struct ClashAppMark: View {
     var body: some View {
         let installedURL = Bundle.main.resourceURL?
@@ -200,8 +177,6 @@ struct ClashAppMark: View {
         }
     }
 }
-
-@MainActor
 
 struct StatusPill: View {
     @ThemePalette private var palette
@@ -219,8 +194,6 @@ struct StatusPill: View {
             .background(color.opacity(0.14), in: Capsule())
     }
 }
-
-@MainActor
 
 struct Card<Content: View>: View {
     @ThemePalette private var palette
@@ -249,8 +222,6 @@ struct Card<Content: View>: View {
         .foregroundStyle(palette.ink).panelSurface()
     }
 }
-
-@MainActor
 
 struct ToggleCard: View {
     @ThemePalette private var palette

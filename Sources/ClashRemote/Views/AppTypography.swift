@@ -1,12 +1,5 @@
-#if canImport(AppKit)
 import AppKit
-#endif
-#if os(macOS)
 import SwiftUI
-#else
-import Foundation
-import SwiftOpenUI
-#endif
 
 private struct AppTextScaleEnvironmentKey: EnvironmentKey {
     static let defaultValue: CGFloat = 1
@@ -81,11 +74,7 @@ struct AppFont {
             pointSize = value
             defaultWeight = .regular
         case .textStyle(let style):
-            #if os(macOS)
             pointSize = NSFont.preferredFont(forTextStyle: Self.nativeStyle(style), options: [:]).pointSize
-            #else
-            pointSize = style.pointSize
-            #endif
             defaultWeight = style == .headline ? .semibold : .regular
         }
 
@@ -94,7 +83,6 @@ struct AppFont {
         return usesMonospacedDigits ? font.monospacedDigit() : font
     }
 
-    #if os(macOS)
     private static func nativeStyle(_ style: Font.TextStyle) -> NSFont.TextStyle {
         switch style {
         case .largeTitle: .largeTitle
@@ -111,10 +99,7 @@ struct AppFont {
         @unknown default: .body
         }
     }
-    #endif
 }
-
-@MainActor
 
 private struct AppFontModifier: ViewModifier {
     @Environment(\.appTextScale) private var textScale

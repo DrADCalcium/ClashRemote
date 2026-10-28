@@ -1,4 +1,3 @@
-#if os(macOS)
 import AppKit
 import SwiftUI
 
@@ -56,5 +55,3 @@ final class WindowPreferenceHost: NSView {
         }
     }
 }
-
-#endif

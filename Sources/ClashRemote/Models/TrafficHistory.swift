@@ -1,7 +1,5 @@
 import Foundation
-#if canImport(CoreFoundation)
 import CoreFoundation
-#endif
 
 struct TrafficSample: Identifiable, Equatable {
     let date: Date
@@ -20,13 +18,7 @@ enum TrafficCounter {
     /// Preserve missing or invalid counters as unknown; a real zero is valid.
     static func parse(_ value: Any?) -> Int64? {
         if let number = value as? NSNumber {
-            #if canImport(CoreFoundation)
             guard CFGetTypeID(number) != CFBooleanGetTypeID() else { return nil }
-            #else
-            if let value, type(of: value) == Bool.self { return nil }
-            // Windows Foundation has a distinct NSNumber subclass for JSON booleans.
-            guard type(of: number) != type(of: NSNumber(value: true)) else { return nil }
-            #endif
             if let count = Int64(number.stringValue) {
                 return count >= 0 ? count : nil
             }

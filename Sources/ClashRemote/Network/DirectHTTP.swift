@@ -1,4 +1,3 @@
-#if !os(Windows)
 import Foundation
 import Network
 
@@ -214,5 +213,3 @@ enum DirectHTTP {
         }
     }
 }
-
-#endif

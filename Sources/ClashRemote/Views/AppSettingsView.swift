@@ -1,11 +1,4 @@
-#if os(macOS)
 import SwiftUI
-#else
-import Foundation
-import SwiftOpenUI
-#endif
-
-@MainActor
 
 struct AppSettingsView: View {
     @Environment(AppPreferences.self) private var preferences
@@ -293,8 +286,6 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
     }
 }
 
-@MainActor
-
 private struct SettingsGroup<Content: View>: View {
     @ThemePalette private var palette
     let title: String
@@ -319,8 +310,6 @@ private struct SettingsGroup<Content: View>: View {
     }
 }
 
-@MainActor
-
 private struct SettingsRow<Content: View>: View {
     @ThemePalette private var palette
     let title: String
@@ -340,8 +329,6 @@ private struct SettingsRow<Content: View>: View {
         .padding(.vertical, 3)
     }
 }
-
-@MainActor
 
 private struct SettingsDivider: View {
     @ThemePalette private var palette

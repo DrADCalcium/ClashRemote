@@ -1,9 +1,4 @@
-#if os(macOS)
 import SwiftUI
-#else
-import Foundation
-import SwiftOpenUI
-#endif
 
 private struct DisplayGroup: Identifiable, Hashable {
     var id: String
@@ -13,8 +8,6 @@ private struct DisplayGroup: Identifiable, Hashable {
     var now: String
     var typeLabel: String
 }
-
-@MainActor
 
 struct NodesBoard: View {
     @ThemePalette private var palette
@@ -431,8 +424,6 @@ enum NodeBoardLayout {
     }
 }
 
-@MainActor
-
 private struct NodeCard: View {
     @ThemePalette private var palette
     @Environment(AppPreferences.self) private var preferences
@@ -562,8 +553,6 @@ private struct NodeCard: View {
     }
 }
 
-@MainActor
-
 private struct FailoverHistorySheet: View {
     @ThemePalette private var palette
     @Environment(AppState.self) private var state
@@ -615,8 +604,6 @@ struct BlockRequest: Identifiable {
 
     var id: String { node.name + (keywordMode ? "#batch" : "#one") }
 }
-
-@MainActor
 
 private struct BlockNodeSheet: View {
     @ThemePalette private var palette

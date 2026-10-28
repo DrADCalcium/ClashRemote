@@ -1,9 +1,4 @@
-#if os(macOS)
 import SwiftUI
-#else
-import Foundation
-import SwiftOpenUI
-#endif
 
 enum WorkspaceSection: String, CaseIterable, Identifiable {
     case overview = "总览"
@@ -28,14 +23,11 @@ enum WorkspaceSection: String, CaseIterable, Identifiable {
     }
 }
 
-@MainActor
-
 struct RootView: View {
     @Environment(AppState.self) private var state
     @Environment(AppPreferences.self) private var preferences
     @AppStorage(AppTheme.storageKey) private var storedTheme: AppTheme = .mintCat
     @State private var addingDevice = false
-    @State private var didStartWindowsSmoke = false
     @State private var editingDevice: RouterDevice?
     @State private var section: WorkspaceSection = .overview
     @State private var didApplyStartupPreferences = false
@@ -62,12 +54,6 @@ struct RootView: View {
         .tint(selectedTheme.colors.blue)
         .foregroundStyle(selectedTheme.colors.ink)
         .onAppear {
-            #if os(Windows)
-            if CommandLine.arguments.contains("--ui-smoke-test"), !didStartWindowsSmoke {
-                didStartWindowsSmoke = true
-                WindowsPreview.smoke(section: $section, addingDevice: $addingDevice)
-            }
-            #endif
             guard previewTheme == nil, !didApplyStartupPreferences else { return }
             didApplyStartupPreferences = true
             switch preferences.startupPage {
@@ -105,8 +91,6 @@ struct RootView: View {
         }
     }
 }
-
-@MainActor
 
 private struct WorkspaceSidebar: View {
     @Environment(AppState.self) private var state
@@ -223,8 +207,6 @@ private struct WorkspaceSidebar: View {
     }
 }
 
-@MainActor
-
 struct NoticeBar: View {
     let notice: AppNotice
 
@@ -257,8 +239,6 @@ struct NoticeBar: View {
         }
     }
 }
-
-@MainActor
 
 struct DeviceEditor: View {
     @Environment(AppState.self) private var state

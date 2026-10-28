@@ -1,14 +1,5 @@
-#if canImport(AppKit)
 import AppKit
-#endif
-#if os(macOS)
 import SwiftUI
-#else
-import Foundation
-import SwiftOpenUI
-#endif
-
-@MainActor
 
 struct DashboardView: View {
     @ThemePalette private var palette
@@ -333,7 +324,7 @@ struct DashboardView: View {
                 if let url = state.deviceFailoverPanelURL {
                     VStack(alignment: .leading, spacing: 4) {
                         Button("浏览器打开面板") {
-                            PlatformBrowser.open(url)
+                            NSWorkspace.shared.open(url)
                         }
                         .controlSize(.large)
                         Text(url.absoluteString)
@@ -524,8 +515,6 @@ struct DashboardView: View {
     }
 
 }
-
-@MainActor
 
 struct SubscriptionEditor: View {
     @ThemePalette private var palette

@@ -1,11 +1,4 @@
-#if os(macOS)
 import SwiftUI
-#else
-import Foundation
-import SwiftOpenUI
-#endif
-
-@MainActor
 
 struct ThemeSettingsView: View {
     @Environment(\.appTheme) private var selectedTheme
@@ -52,8 +45,6 @@ struct ThemeSettingsView: View {
     }
 }
 
-@MainActor
-
 private struct ThemePreviewCard: View {
     @ThemePalette private var palette
     let theme: AppTheme
@@ -92,8 +83,6 @@ private struct ThemePreviewCard: View {
         .accessibilityHint("切换并保存主题")
     }
 }
-
-@MainActor
 
 private struct ThemeThumbnail: View {
     let theme: AppTheme
@@ -174,8 +163,6 @@ private struct ThemeThumbnail: View {
     }
 }
 
-@MainActor
-
 private struct ThemeRouterPreview: View {
     let color: Color
     let ink: Color
@@ -202,8 +189,6 @@ private struct ThemeRouterPreview: View {
         }
     }
 }
-
-@MainActor
 
 struct AppearanceSettingsWindow: View {
     @Environment(AppPreferences.self) private var preferences
