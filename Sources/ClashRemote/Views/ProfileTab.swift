@@ -21,6 +21,8 @@ private enum ProfileCategory: String, CaseIterable, Identifiable {
     }
 }
 
+@MainActor
+
 struct ProfileTab: View {
     @ThemePalette private var palette
     @Environment(AppState.self) private var state
@@ -351,6 +353,8 @@ struct ProfileTab: View {
     }
 }
 
+@MainActor
+
 private struct FlowTokens: View {
     @ThemePalette private var palette
     let values: [String]
@@ -376,6 +380,8 @@ private struct FlowTokens: View {
         }
     }
 }
+
+@MainActor
 
 private struct LocalSubscriptionEditor: View {
     @ThemePalette private var palette

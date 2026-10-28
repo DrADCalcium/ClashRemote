@@ -12,6 +12,7 @@ import SwiftOpenUI
 struct ClashRemoteApp: App {
     @State private var state: AppState
     @State private var preferences: AppPreferences
+    private let demo: Bool
 
     init() {
         #if DEBUG && os(macOS)
@@ -21,14 +22,25 @@ struct ClashRemoteApp: App {
             exit(0)
         }
         #endif
+        #if os(Windows)
+        demo = CommandLine.arguments.contains("--demo") || CommandLine.arguments.contains("--ui-smoke-test")
+        let defaults = demo ? UserDefaults(suiteName: "ClashRemote.OpenUIDemo")! : .standard
+        let preferences = AppPreferences(defaults: defaults)
+        #else
+        demo = false
         let preferences = AppPreferences()
+        #endif
         _preferences = State(initialValue: preferences)
-        _state = State(initialValue: AppState(preferences: preferences))
+        let state = AppState(preferences: preferences, loadStoredData: !demo)
+        #if os(Windows)
+        if demo { WindowsPreview.seed(state) }
+        #endif
+        _state = State(initialValue: state)
     }
 
     var body: some Scene {
         WindowGroup("Clash Remote") {
-            RootView()
+            RootView(previewTheme: demo ? .mintCat : nil)
                 .environment(state)
                 .environment(preferences)
                 .frame(minWidth: 980, minHeight: 640)

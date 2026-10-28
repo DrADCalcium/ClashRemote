@@ -77,8 +77,12 @@ final class AppState {
         connectedDeviceID != nil && connectedDeviceID == selectedID && lastError == nil
     }
 
-    init(preferences: AppPreferences? = nil) {
+    @ObservationIgnored private let loadStoredData: Bool
+
+    init(preferences: AppPreferences? = nil, loadStoredData: Bool = true) {
+        self.loadStoredData = loadStoredData
         self.preferences = preferences ?? AppPreferences()
+        guard loadStoredData else { return }
         let loaded = store.load()
         devices = loaded.devices
         selectedID = loaded.selected ?? loaded.devices.first?.id
@@ -90,10 +94,12 @@ final class AppState {
     }
 
     func persist() {
+        guard loadStoredData else { return }
         store.save(devices: devices, selected: selectedID)
     }
 
     func persistProfile() {
+        guard loadStoredData else { return }
         do {
             try profileStore.save(profile)
         } catch {

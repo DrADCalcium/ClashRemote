@@ -12,6 +12,7 @@ import SwiftOpenUI
 #endif
 
 /// The overview uses three arrangements shared by the five appearance themes.
+@MainActor
 struct ThemedOverview: View {
     @Environment(AppState.self) private var state
     @Environment(AppPreferences.self) private var preferences
@@ -482,6 +483,7 @@ struct ThemedOverview: View {
 }
 
 /// The horizontal diagram is code-native, so it remains sharp in all window sizes and themes.
+@MainActor
 struct RouterConnectionDiagram: View {
     @ThemePalette private var palette
     let deviceName: String
@@ -557,6 +559,8 @@ private struct ThreeAntennaRouter: Shape {
     }
 }
 
+@MainActor
+
 struct CatNetworkIllustration: View {
     @ThemePalette private var palette
 
@@ -611,6 +615,8 @@ private struct SimpleCatSilhouette: Shape {
     }
 }
 
+@MainActor
+
 private struct OverviewSurface: ViewModifier {
     @Environment(\.appTheme) private var theme
     @ThemePalette private var palette
@@ -626,6 +632,8 @@ private struct OverviewSurface: ViewModifier {
 private extension View {
     func overviewSurface(radius: CGFloat = 15) -> some View { modifier(OverviewSurface(radius: radius)) }
 }
+
+@MainActor
 
 private struct OverviewButtonStyle: ButtonStyle {
     @ThemePalette private var palette

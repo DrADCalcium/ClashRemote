@@ -1,73 +1,74 @@
-# Windows Swift 移植实验
+# ClashRemote：SwiftOpenUI Windows 移植
 
-**状态：核心代码在 Windows 编译并通过测试；SwiftOpenUI 完整界面尚未编译通过，没有可交付的桌面 EXE，也尚未实现 UI 一比一复刻。**
+`windows-port` 分支保留原项目 Swift 页面与业务逻辑，通过 SwiftOpenUI 的 BackendWin32 运行。完整应用已在 Windows x64 编译、链接并完成逐页切换冒烟检查。它与 `windows-swiftcrossui` 分支独立。
 
-## 基线与范围
+本轮实现了原界面依赖的一批缺失 API，尚未达到与 macOS 逐像素一致。原版基线为 `c5d8831`；此前 Windows 平台桥接基线为 `c232398`。
 
-从原版 `c5d8831`（1.4）重新开始。此前 C# 实现已由 `0841689` 回退；可通过历史提交 `e085ff8` 或本地 `archive/windows-csharp` 分支恢复。`main` 保持原版。
+## 构建和启动
 
-本次保留原 Swift 页面、模型、OpenClash/LuCI/ubus 服务调用和业务逻辑，添加条件编译及必要平台桥接。没有用其他 UI 框架重写页面。
-
-- Windows HTTP 改用 WinHTTP，显式直连，不自动跟随重定向或保存 Cookie；保留 LuCI 登录响应中的多个 Set-Cookie。HTTPS 保持系统证书验证。
-- CommonCrypto 调用通过小型 C 桥接转到 Windows CNG，覆盖 MD5、SHA256、HMAC-MD5，原 UFI 签名流程保留。
-- AppKit 图片、浏览器打开、窗口置顶增加 Windows 入口；这些界面相关入口还没有运行验证。
-- CoreFoundation 布尔计数检测增加 Windows Foundation 实现，避免将 JSON true 作为流量 1。
-- AppState 默认参数的对象创建移到主线程初始化器内部。
-- macOS 继续使用 SwiftUI/AppKit/Charts 和 Swift 6 模式；Windows 实验使用 Swift 5 语言模式，尚有线程隔离警告。
-
-## 已验证环境
-
-Windows x64；Swift 6.4.1；Visual Studio 2022 C++；Windows SDK 10.0.26100.0。
-
-UI 依赖为 [codelynx/SwiftOpenUI](https://github.com/codelynx/SwiftOpenUI)，固定提交 `4afcacda74dec9e0bae18403c4427b05c8586943`，使用 BackendWin32。这里不是 OpenSwiftUIProject/OpenSwiftUI。
-
-## 复现核心测试
-
-在仓库目录运行：
-
-```powershell
-python .\scripts\test-windows-core.py
-```
-
-脚本仅在 `127.0.0.1` 随机端口启动模拟 HTTP 服务，运行后关闭；不连接真实路由器、不读取本机设备列表。Python 3 仅用于测试服务。测试代码的会话和密码都是固定的模拟值。
-
-实际执行 5 项 XCTest，全部通过、无跳过：
-
-1. Swift 调用 Windows CNG，匹配 MD5、SHA256、HMAC-MD5 已知向量。
-2. 流量计数拒绝布尔、负数、小数，保留 0、1 及 Int64 上界字符串。
-3. WinHTTP 返回原始 302 和多条 Cookie，UTF-8 POST、请求头、响应解析正确，Cookie 不自动发送到后续请求。
-4. 原 `OpenClashClient.login()` 经 Windows 传输完成模拟 ubus 和 LuCI 登录。
-5. 不支持的 URL 协议返回错误。
-
-也可运行 `powershell -NoProfile -File .\scripts\build-windows.ps1 -CoreChecks`。未通过测试服务入口运行时，两项网络测试会明确跳过。日志为 `windows-core-tests.log`。
-
-核心目标直接编译原项目的 AppState、Models（不含外观主题）、Network 和 Store 源文件，不使用重新实现的网络业务替身。模拟服务只用于响应测试请求。
-
-## 复现完整 UI 构建尝试
+已验证环境：Windows x64、Swift 6.4.1、Visual Studio 2022 Desktop C++、Windows SDK 10.0.26100.0。
 
 ```powershell
 powershell -NoProfile -File .\scripts\build-windows.ps1
+.\.build\x86_64-unknown-windows-msvc\debug\ClashRemote.exe
 ```
 
-脚本加载 Visual Studio C++ 环境、定位 Swift，自动下载固定版本 SwiftOpenUI 到忽略的 `.build/SwiftOpenUI-pinned`，并应用 `patches/swiftopenui-swift64-winsdk.patch`。也支持 `SWIFTOPENUI_PATH` 指向同一提交的已有本地克隆。
+脚本自动加载 C++/Swift 环境，下载 [codelynx/SwiftOpenUI](https://github.com/codelynx/SwiftOpenUI) 固定提交 `4afcacda74dec9e0bae18403c4427b05c8586943` 到 `.build/SwiftOpenUI-pinned`，依次应用两个补丁：
 
-补丁修复 Swift 6.4 Clang 模块下 WinSDK 类型可见性及 DPI 宏兼容性。SwiftOpenUI、其符号资源、CWin32Bridge 和 BackendWin32 已实际编译通过。使用 `--build-system native`，避开本机新版默认构建引擎对资源目录 Touch 操作的失败。该选项已被 Swift 标为弃用。
+- `patches/swiftopenui-swift64-winsdk.patch`：Swift 6.4 下 WinSDK 头文件、类型及 DPI 宏兼容。
+- `patches/swiftopenui-windows-api.patch`：本轮新增的共享 API 和 Win32 行为实现。
 
-**当前上述完整 UI 命令预期失败。** `windows-build.log` 包含完整编译诊断。最后一次构建仍有 259 个去重的源码位置诊断，其中很多是同一缺失接口导致的连带错误，不代表 259 个独立功能缺失。
+重复构建会检查补丁是否已应用。`SWIFTOPENUI_PATH` 可指向相同提交的本地克隆。直接运行 `swift build` 不会替你应用补丁，请优先使用脚本。使用 `--build-system native` 绕过 Swift 6.4 本机默认引擎的资源目录 Touch 问题；该开关已被 Swift 标为弃用。
 
-## 一比一复刻的剩余障碍
+演示模式 `ClashRemote.exe --demo` 使用样例数据，不读取保存的路由器列表或写回设备/本地配置。普通启动保留原项目的实际连接行为。
 
-| 原代码使用项 | 当前障碍 |
+## 本轮 API 实现
+
+| 范围 | 实现 |
 | --- | --- |
-| 自定义 ButtonStyle、Configuration、isEnabled 环境 | SwiftOpenUI 的按钮样式契约不同，不能直接套用原样式 |
-| AnyLayout、HStackLayout、VStackLayout、自适应网格 | 缺少接口或参数形态不兼容，影响页面布局 |
-| Menu、TextField 轴向/行数、日期 Text | 初始化器和行为不兼容 |
-| tint、background、contentShape、onHover、accessibility 等 | 部分接口缺失或重载不同，影响颜色、命中区域、交互及辅助功能 |
-| Path 二次曲线、圆角参数 | 绘图 API 不完整，原插画不能直接构建 |
-| @MainActor 视图与 @Observable 状态 | SwiftOpenUI View/App 协议及回调的线程隔离约定不同 |
-| Swift Charts | Windows 无 Apple Charts；已有保留真实采样数据的 Canvas 折线尝试，但轴、填充等尚未达到原图一致 |
-| 字体、系统图标、原生控件、窗口偏好 | 还需实际渲染和交互验证；窗口位置/尺寸记忆尚未实现 |
+| 按钮 | SwiftUI 形态的自定义 ButtonStyle、Configuration、role、按压状态；鼠标/键盘按下反馈与动作；switch 外观和 tint |
+| 布局 | AnyLayout、HStackLayout、VStackLayout；ViewBuilder 形态的 LazyVStack/LazyVGrid；自适应列数随宽度重排、最大列宽；分栏样式；CGFloat 间距重载 |
+| 文本和输入 | 日期 Text、ContentUnavailableView；纵向多行 TextField、行数范围、密码样式和原生输入范围；minimumScaleFactor 随宽度缩小并恢复字体 |
+| 绘图 | Path 二次曲线转三次曲线、currentPoint、圆角参数、非零环绕命中测试；默认 Shape 填充、stroke 重载；图片插值 |
+| 交互 | contentShape 的原生命中区域、onHover 进入/离开、右键及 Shift+F10 菜单、菜单箭头可见性、radioGroup |
+| 外观与辅助功能 | brightness 可见反馈、背景形状、彩色删除线、controlSize、配色环境；MSAA 名称/值/提示/状态/角色与组合元素 |
 
-没有为缺失修饰器批量添加“返回 self”的空实现来掩盖错误。AppStorage 桥接提供 UserDefaults 和 SwiftOpenUI State 存储接入，但跨视图同步与重启行为尚未实测。
+补丁位于仓库内，可以审阅和重新应用；未把修改隐藏在本地构建缓存里。`@MainActor` 适配保留在应用视图代码中，Windows 暂用 Swift 5 语言模式，因此仍有将来 Swift 6 严格并发模式下需要处理的警告。macOS 继续使用 Apple SwiftUI/AppKit/Charts，本轮没有进行 macOS 编译回归。
 
-继续实现原 UI，需要先补齐 SwiftOpenUI 的样式、布局、绘图及线程契约，再逐页编译并验证窗口缩放、主题、字体、图标和交互。当前结果证明了原 Swift 业务层的 Windows 可编译性与部分平台 API 行为，不能证明完整功能或 UI 已移植成功。真实路由器服务启停、模式切换和 macOS 回归尚未测试。
+## 检查
+
+```powershell
+# 独立 Win32 API 测试包，不依赖 macOS 专用的应用测试
+powershell -NoProfile -File .\scripts\build-windows.ps1 -APITests
+
+# 原网络/加密实现 + 本机模拟 HTTP 服务
+python .\scripts\test-windows-core.py
+
+# 原应用七个页面与设备编辑窗口的切换冒烟检查
+$env:CLASHREMOTE_UI_SMOKE_RESULT="$PWD\windows-openui-smoke-result.json"
+.\.build\x86_64-unknown-windows-msvc\debug\ClashRemote.exe --ui-smoke-test
+```
+
+API 测试实际创建隐藏的 HWND 并发送原生消息。10 项覆盖二次曲线、曲线/空洞命中、横纵布局、自适应网格重排、MSAA 字符串、悬停回调、键盘按压和单次触发、多行/密码输入、字体缩放恢复、窄窗口分栏。日志为 `windows-api-tests.log`。
+
+核心测试实际执行原项目 Swift 代码的 CNG 已知向量、流量数字解析、WinHTTP 重定向/Cookie/UTF-8、模拟 LuCI/ubus 登录和协议拒绝。5 项全部通过。模拟服务只监听 `127.0.0.1` 随机端口，不访问真实路由器。未通过 Python 入口启动时，两项网络测试会明确跳过。
+
+UI 冒烟检查使用样例数据，依次切换总览、节点、订阅、规则、设备控制、本地配置、设置，并打开设备编辑器；成功后 JSON 的 `completed` 为 true、`pages` 含八项，进程返回 0。这证明各分支能够在 Win32 中创建并切换，不能替代截图比对、鼠标操作验收或真实路由器测试。
+
+## 打包
+
+```powershell
+powershell -NoProfile -File .\scripts\package-windows.ps1
+```
+
+输出 `dist/ClashRemote-SwiftOpenUI-win-x64.zip`，包含 EXE、资源、Swift runtime DLL 和许可。解压后从同一文件夹运行 EXE，不要只复制 EXE。可用 `-SwiftRuntimePath` 指定其他 Swift runtime 目录。重新打包前请移走已有的同名输出目录，避免混入旧 DLL。使用系统 Win32 控件，无需 Windows App Runtime。已在本机使用仅含系统目录的 PATH 检查打包程序；未在全新 Windows 系统上验证。
+
+## 已知差异
+
+- `firstTextBaseline` 暂映射到底边对齐；字体、系统图标、控件尺寸与 macOS 存在差异，未完成逐像素复刻。
+- brightness 使用黑/白透明层混合，彩色删除线按原生文本行高绘制，与 SwiftUI 的精确效果可能不同。
+- MSAA 属性与组合已接入，尚未实现完整 UI Automation 自定义提供者；未进行屏幕阅读器人工验收。
+- 日期 relative/timer 在视图重建时计算，不提供独立的实时刷新定时器。
+- Builder 形态的 Lazy 容器当前一次创建子项，不是按可见区域虚拟化；大量节点的性能待测。
+- Windows 流量图沿用 Canvas 折线替代 Apple Charts；窗口位置/尺寸记忆尚未实现；AppStorage 跨视图同步与重启仍待验收。
+- OpenClash 服务启停、重启、规则/直连/全局切换保留原项目逻辑与 Windows 网络桥接，但本轮没有连接真实路由器验证。

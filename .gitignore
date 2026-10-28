@@ -27,3 +27,10 @@ rebuild.log
 windows-build.log
 windows-core-tests.log
 windows-errors.txt
+
+.build-api-tests/
+.build-crossui/
+__pycache__/
+windows-*.log
+windows-*-result.json
+crossui-*.log

@@ -9,7 +9,7 @@ var platformTargets: [Target] = []
 #if os(Windows)
 if !coreChecks {
 if let local = ProcessInfo.processInfo.environment["SWIFTOPENUI_PATH"] {
-    dependencies.append(.package(path: local))
+    dependencies.append(.package(name: "SwiftOpenUI", path: local))
 } else {
     dependencies.append(.package(url: "https://github.com/codelynx/SwiftOpenUI.git", revision: "4afcacda74dec9e0bae18403c4427b05c8586943"))
 }

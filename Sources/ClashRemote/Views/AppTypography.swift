@@ -114,6 +114,8 @@ struct AppFont {
     #endif
 }
 
+@MainActor
+
 private struct AppFontModifier: ViewModifier {
     @Environment(\.appTextScale) private var textScale
     let descriptor: AppFont

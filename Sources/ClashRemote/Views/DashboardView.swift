@@ -8,6 +8,8 @@ import Foundation
 import SwiftOpenUI
 #endif
 
+@MainActor
+
 struct DashboardView: View {
     @ThemePalette private var palette
     @Environment(AppState.self) private var state
@@ -522,6 +524,8 @@ struct DashboardView: View {
     }
 
 }
+
+@MainActor
 
 struct SubscriptionEditor: View {
     @ThemePalette private var palette
