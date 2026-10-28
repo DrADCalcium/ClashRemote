@@ -19,3 +19,14 @@ dist/
 .vscode/
 *.swp
 *~
+
+# Windows build outputs
+.build-core/
+.build-crossui/
+*-run.log
+rebuild.log
+windows-*.log
+windows-errors.txt
+crossui-*.log
+__pycache__/
+windows-*-result.json

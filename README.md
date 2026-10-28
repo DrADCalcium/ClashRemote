@@ -2,6 +2,8 @@
 
 **macOS 原生客户端，用来遥控家里的 OpenClash / 猫猫。**
 
+本分支新增 SwiftCrossUI / WinUI 3 Windows 预览版：构建、运行和已知限制见 [Windows 说明](WINDOWS-CROSSUI.md)。
+
 换订阅、切节点、切规则/全局/直连、开 TUN——不必再打开 LuCI 或插件网页。局域网里有一两台 Clash 设备时，这就是那个「专用按钮」。
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black?style=flat-square)

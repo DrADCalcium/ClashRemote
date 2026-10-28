@@ -77,8 +77,9 @@ final class AppState {
         connectedDeviceID != nil && connectedDeviceID == selectedID && lastError == nil
     }
 
-    init(preferences: AppPreferences = AppPreferences()) {
-        self.preferences = preferences
+    init(preferences: AppPreferences? = nil, loadStoredData: Bool = true) {
+        self.preferences = preferences ?? AppPreferences()
+        guard loadStoredData else { return }
         let loaded = store.load()
         devices = loaded.devices
         selectedID = loaded.selected ?? loaded.devices.first?.id
